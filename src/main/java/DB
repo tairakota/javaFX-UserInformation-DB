@@ -1,0 +1,22 @@
+CREATE DATABASE userinformation;
+
+CREATE TABLE companies (
+id SERIAL PRIMARY KEY,
+name VARCHAR(255));
+
+CREATE TABLE users (
+id SERIAL PRIMARY KEY,
+name VARCHAR(255),
+company_id INT,
+score INT);
+
+INSERT INTO companies
+VALUES
+(1, '株式会社A'),
+(2, '株式会社B'),
+(3, '株式会社C');
+
+INSERT INTO users
+VALUES
+(1, 'AAA', 1, 10),
+(2, 'BBB', 2, 20);

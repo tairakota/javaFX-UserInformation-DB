@@ -7,8 +7,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.sql.PreparedStatement;
-
 public class InfoController {
     @FXML
     private ComboBox<String> jobComboBox;
@@ -24,8 +22,8 @@ public class InfoController {
     @FXML private TableColumn<User, Integer> scoreColumn;
 
     private UserInfoDao userInfoDao;
-
     int editId = -1;
+
     @FXML
     private void initialize() {
         var connection = DBUtil.getConnection();
@@ -44,10 +42,7 @@ public class InfoController {
         nameColumn.setSortable(false);
         scoreColumn.setSortable(false);
 
-        this.userInfoDao.getRecord(1);
-        tableView.getItems().add(this.userInfoDao.user);
-        this.userInfoDao.getRecord(2);
-        tableView.getItems().add(this.userInfoDao.user);
+        allUpdateInfo();
     }
 
     @FXML
@@ -77,29 +72,33 @@ public class InfoController {
         }
 
         this.userInfoDao.insertInfo(job, name, score);
-        this.userInfoDao.getRecord(3);
-        tableView.getItems().add(this.userInfoDao.user);
+        allUpdateInfo();
     }
 
     @FXML
     private void onDelete(ActionEvent actionEvent) {
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            tableView.getItems().remove(selectedIndex);
+            User selectedItems = tableView.getSelectionModel().getSelectedItem();
+            this.userInfoDao.deleteInfo(selectedItems.getId());
+            allUpdateInfo();
+            if (editId == selectedItems.getId()) {
+                jobComboBoxEdit.setValue(null);
+                nameTextFieldEdit.setText(null);
+                scoreTextFieldEdit.setText(null);
+                editId = -1;
+            }
         }
     }
     @FXML
-    private void onEdit(ActionEvent actionEvent) {
+    private void onEdit() {
         User edituser = tableView.getSelectionModel().getSelectedItem();
-        if (edituser == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "編集するレコードを選択してください。", ButtonType.OK);
-            alert.showAndWait();
-            return;
+        if (edituser != null) {
+            jobComboBoxEdit.setValue(edituser.getJob());
+            nameTextFieldEdit.setText(edituser.getName());
+            scoreTextFieldEdit.setText(String.valueOf(edituser.getScore()));
+            editId = edituser.getId();
         }
-        jobComboBoxEdit.setValue(edituser.getJob());
-        nameTextFieldEdit.setText(edituser.getName());
-        scoreTextFieldEdit.setText(String.valueOf(edituser.getScore()));
-        editId = edituser.getId();
     }
     @FXML
     private void onUpdate(ActionEvent actionEvent) {
@@ -133,19 +132,24 @@ public class InfoController {
             return;
         }
 
-        User selectedIndex = tableView.getSelectionModel().getSelectedItem();
-        tableView.getItems().remove(selectedIndex);
-
-        User user = new User(job, name, score);
-        user.setId(editId);
-        tableView.getItems().add(user);
-
+        this.userInfoDao.updateInfo(editId, name, job, score);
+        allUpdateInfo();
         jobComboBoxEdit.setValue(null);
         nameTextFieldEdit.setText(null);
         scoreTextFieldEdit.setText(null);
-        tableView.getSortOrder().add(idColumn);
         editId = -1;
     }
 
 
+    public void allUpdateInfo() {
+        tableView.getItems().removeAll(tableView.getItems());
+        tableView.refresh();
+        var iii = this.userInfoDao.getRecord();
+        for (var i = 0; i < iii.size(); i++) {
+            var iv = iii.get(i);
+            User user = new User(iv.job(), iv.name(), iv.score());
+            user.setId(iv.id());
+            tableView.getItems().add(user);
+        }
+    }
 }

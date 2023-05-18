@@ -47,11 +47,11 @@
                 <ComboBox fx:id="jobComboBoxEdit" prefWidth="150.0" GridPane.columnIndex="1" />
                 <TextField fx:id="nameTextFieldEdit" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="scoreTextFieldEdit" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <Button mnemonicParsing="false" onAction="#onUpdate" text="更新" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Button fx:id="onUpdateBtn" mnemonicParsing="false" onAction="#onUpdate" text="更新" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                 <Button fx:id="onDeleteBtn" mnemonicParsing="false" onAction="#onDelete" text="削除" GridPane.rowIndex="3" />
             </children>
         </GridPane>
-        <TableView fx:id="tableView" layoutX="86.0" layoutY="195.0" prefHeight="173.0" prefWidth="419.0">
+        <TableView fx:id="tableView" layoutX="86.0" layoutY="195.0" onMouseClicked="#onEdit" prefHeight="173.0" prefWidth="419.0">
             <columns>
                 <TableColumn fx:id="idColumn" prefWidth="66.33332824707031" text="ID" />
                 <TableColumn fx:id="jobColumn" prefWidth="156.0" text="所属企業" />
@@ -59,6 +59,5 @@
                 <TableColumn fx:id="scoreColumn" prefWidth="92.33331298828125" text="スコア" />
             </columns>
         </TableView>
-        <Button fx:id="onEditBtn" layoutX="505.0" layoutY="343.0" mnemonicParsing="false" onAction="#onEdit" text="編集" />
     </children>
 </Pane>

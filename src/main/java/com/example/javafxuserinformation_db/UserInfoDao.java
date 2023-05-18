@@ -5,11 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserInfoDao {
     private Connection connection;
     public ArrayList list = new ArrayList<String>();
-    public User user;
 
     public UserInfoDao(Connection connection) {
         this.connection = connection;
@@ -33,42 +33,86 @@ public class UserInfoDao {
             throw new RuntimeException(e);
         }
     }
-    public String companies(int id) {
-        return this.list.get(id - 1).toString();
-    }
-
-    public void getRecord(int id) {
-        final var SQL = "SELECT * FROM users WHERE id = ?";
+    public String companiesName(int id) {
+        final var SQL = "SELECT name FROM companies WHERE id = ?";
+        String companyName = null;
         try {
             PreparedStatement stmt = this.connection.prepareStatement(SQL);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                companyName = rs.getString("name");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+        return companyName;
+    }
+    public int companyId(String job) {
+        final var SQL = "SELECT id FROM companies WHERE name = ?";
+        int companyId = 0;
+        try {
+            PreparedStatement stmt = this.connection.prepareStatement(SQL);
+            stmt.setString(1, job);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                companyId = rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+        return companyId;
+    }
+
+    public List<InfoRecord> getRecord() {
+        final var SQL = "SELECT * FROM users";
+        var list = new ArrayList<InfoRecord>();
+        try {
+            PreparedStatement stmt = this.connection.prepareStatement(SQL);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                this.user = new User(companies(rs.getInt("company_id")), rs.getString("name"), rs.getInt("score"));
-                this.user.setId(rs.getInt("id"));
+                var infoRecord
+                        = new InfoRecord(rs.getInt("id"), rs.getString("name"), companiesName(rs.getInt("company_id")), rs.getInt("score"));
+                list.add(infoRecord);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return list;
     }
 
     public void insertInfo(String job, String name, int score) {
         final var SQL = "INSERT INTO users (name, company_id, score) VALUES (?, ?, ?)";
-        final var SQL2 = "SELECT id FROM companies WHERE name = ?";
-
         try {
-            PreparedStatement stmt2 = this.connection.prepareStatement(SQL2);
-            stmt2.setString(1, job);
-            ResultSet rs = stmt2.executeQuery();
-            int jobId = 0;
-            while (rs.next()) {
-                jobId = rs.getInt("id");
-            }
-
             PreparedStatement stmt = this.connection.prepareStatement(SQL);
             stmt.setString(1, name);
-            stmt.setInt(2, jobId);
+            stmt.setInt(2, companyId(job));
             stmt.setInt(3, score);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    public void deleteInfo(int id) {
+        final var SQL = "DELETE FROM users WHERE id = ?";
+        try {
+            PreparedStatement stmt = this.connection.prepareStatement(SQL);
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    public void updateInfo(int id, String name, String job, int score) {
+        final var SQL = "UPDATE users SET name = ?, company_id = ?, score = ? WHERE id = ?";
+        try {
+            PreparedStatement stmt = this.connection.prepareStatement(SQL);
+            stmt.setString(1, name);
+            stmt.setInt(2, companyId(job));
+            stmt.setInt(3, score);
+            stmt.setInt(4, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException();

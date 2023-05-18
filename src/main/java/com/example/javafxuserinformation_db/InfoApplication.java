@@ -16,7 +16,7 @@ public class InfoApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(InfoApplication.class.getResource("userinfo-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Scene scene = new Scene(fxmlLoader.load(), 650, 450);
         stage.setTitle("User管理アプリ");
         stage.setScene(scene);
         stage.show();

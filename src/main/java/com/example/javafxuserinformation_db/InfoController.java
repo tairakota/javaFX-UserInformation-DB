@@ -8,8 +8,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class InfoController {
-    @FXML
-    private ComboBox<String> jobComboBox;
+    @FXML private TextField findTextField;
+    @FXML private ComboBox<String> jobComboBox;
     @FXML private TextField nameTextField;
     @FXML private TextField scoreTextField;
     @FXML private ComboBox<String> jobComboBoxEdit;
@@ -38,9 +38,6 @@ public class InfoController {
         jobColumn.setCellValueFactory(new PropertyValueFactory<>("job"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
-        jobColumn.setSortable(false);
-        nameColumn.setSortable(false);
-        scoreColumn.setSortable(false);
 
         allUpdateInfo();
     }
@@ -143,7 +140,6 @@ public class InfoController {
 
     public void allUpdateInfo() {
         tableView.getItems().removeAll(tableView.getItems());
-        tableView.refresh();
         var iii = this.userInfoDao.getRecord();
         for (var i = 0; i < iii.size(); i++) {
             var iv = iii.get(i);
@@ -151,5 +147,30 @@ public class InfoController {
             user.setId(iv.id());
             tableView.getItems().add(user);
         }
+        tableView.refresh();
     }
+
+    @FXML
+    private void onFind(ActionEvent actionEvent){
+        if (findTextField.getText().isEmpty()) {
+            allUpdateInfo();
+            return;
+        }
+        var iii = this.userInfoDao.findInfo(findTextField.getText());
+        tableView.getItems().removeAll(tableView.getItems());
+        for (var i = 0; i < iii.size(); i++) {
+            var iv = iii.get(i);
+            User user = new User(iv.job(), iv.name(), iv.score());
+            user.setId(iv.id());
+            tableView.getItems().add(user);
+        }
+        tableView.refresh();
+    }
+
+    @FXML
+    private void onClose(ActionEvent actionEvent) {
+        findTextField.setText("");
+        allUpdateInfo();
+    }
+
 }

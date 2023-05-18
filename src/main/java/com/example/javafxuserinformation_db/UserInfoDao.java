@@ -21,7 +21,7 @@ public class UserInfoDao {
     }
 
     public void getCompanies(int id) {
-        final var SQL = "SELECT name FROM companies WHERE id = ?";
+        final var SQL = "SELECT name FROM companies WHERE id = ? ORDER BY id";
         try {
             PreparedStatement stmt = this.connection.prepareStatement(SQL);
             stmt.setInt(1, id);
@@ -65,7 +65,7 @@ public class UserInfoDao {
     }
 
     public List<InfoRecord> getRecord() {
-        final var SQL = "SELECT * FROM users";
+        final var SQL = "SELECT * FROM users ORDER BY id";
         var list = new ArrayList<InfoRecord>();
         try {
             PreparedStatement stmt = this.connection.prepareStatement(SQL);
@@ -117,5 +117,23 @@ public class UserInfoDao {
         } catch (SQLException e) {
             throw new RuntimeException();
         }
+    }
+
+    public List<InfoRecord> findInfo(String find) {
+        final var SQL = "SELECT * FROM users WHERE name LIKE ? ORDER BY id";
+        var list = new ArrayList<InfoRecord>();
+        try {
+            PreparedStatement stmt = this.connection.prepareStatement(SQL);
+            stmt.setString(1, find);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                var infoRecord
+                        = new InfoRecord(rs.getInt("id"), rs.getString("name"), companiesName(rs.getInt("company_id")), rs.getInt("score"));
+                list.add(infoRecord);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+        return list;
     }
 }
